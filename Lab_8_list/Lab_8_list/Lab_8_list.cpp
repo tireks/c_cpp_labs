@@ -1,78 +1,59 @@
-﻿// Lab_8_list.cpp : Этот файл содержит функцию "main". Здесь начинается и заканчивается выполнение программы.
+﻿// Lab_8list_spisok.cpp : Этот файл содержит функцию "main". Здесь начинается и заканчивается выполнение программы.
 //
 
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
 
-typedef struct node
+typedef struct node //create new node structure
 {
     int value;
     struct node* next;
-} Node;
+} Nodelist_spisok;
 
-Node* initNode(int value)
+Nodelist_spisok* initNodelist_spisok(int value) //function of creation of new node
 {
-    Node* res = (Node*)malloc(sizeof(Node));
+    Nodelist_spisok* res = (Nodelist_spisok*)malloc(sizeof(Nodelist_spisok));
     res->value = value;
     res->next = NULL;
     return res;
 }
 
-typedef struct list
+typedef struct list // create new list structure
 {
-    Node* head;
-    //int size;
+    Nodelist_spisok* head;
 } List;
 
-List* initList()
+List* initList() //function of creation of new list
 {
-    List* _list = (List*)malloc(sizeof(List));
-    _list->head = NULL;
-    //_list->size = 0;
-    return _list;
-}
-// Использую рекурсию, чтобы удалять Nodes | можно написать свою версию с линейным удалением (оно в вашем коде, но так красивее и вероятность ошибки меньше)
-void deleteNodes(Node* _node)
-{
-    if (_node != NULL)
-        deleteNodes(_node->next);
-    else
-        return;
-    printf("\nI'm going to delete Node with value = %d, located in %d", _node->value, _node);
-    free(_node);
+    List* list_spisok = (List*)malloc(sizeof(List));
+    list_spisok->head = NULL;
+    return list_spisok;
 }
 
-void deleteList(List* _list)
-{
-    deleteNodes(_list->head);
-    free(_list);
-}
 
-void pushToList(List* _list, int value)
+void add_tolist_spisok(List* list_spisok, int value) //function of adding new node to list
 {
-    //_list->size++;
-    // Голова листа изначально указывает на NULL, а после первого пуша начинает уже на новый элемент
-    if (_list->head == NULL)
+    if (list_spisok->head == NULL)// checkin if list is empty
     {
-        _list->head = initNode(value);
+        list_spisok->head = initNodelist_spisok(value); //creating new node (head/first node)
         return;
     }
 
-    Node* head = _list->head;
-    Node* prev = NULL;
+    Nodelist_spisok* head = list_spisok->head;
+    Nodelist_spisok* prev = NULL;
     while (head != NULL)
     {
         prev = head;
         head = head->next;
     }
-    head = initNode(value);
+    head = initNodelist_spisok(value);
     prev->next = head;
 }
 
-void printList(List* _list)
+void list_output(List* list_spisok)  //function for printing the list
 {
-    Node* cur = _list->head;
+    Nodelist_spisok* cur = list_spisok->head;
     while (cur != NULL)
     {
         printf("%d ", cur->value);
@@ -82,11 +63,13 @@ void printList(List* _list)
 
 int main()
 {
-    List* _list = initList();
+    int input_data = 0;
+    List* list_spisok = initList();
     for (int i = 0; i < 10; i++)
-        pushToList(_list, i);
-    printList(_list);
-    deleteList(_list);
+    {
+        add_tolist_spisok(list_spisok, i);
+    }
+    list_output(list_spisok);
 }
 
 // Запуск программы: CTRL+F5 или меню "Отладка" > "Запуск без отладки"
