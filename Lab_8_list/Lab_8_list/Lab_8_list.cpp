@@ -22,14 +22,14 @@ Node* initNode(int value)
 typedef struct list
 {
     Node* head;
-    int size;
+    //int size;
 } List;
 
 List* initList()
 {
     List* _list = (List*)malloc(sizeof(List));
     _list->head = NULL;
-    _list->size = 0;
+    //_list->size = 0;
     return _list;
 }
 // Использую рекурсию, чтобы удалять Nodes | можно написать свою версию с линейным удалением (оно в вашем коде, но так красивее и вероятность ошибки меньше)
@@ -51,7 +51,7 @@ void deleteList(List* _list)
 
 void pushToList(List* _list, int value)
 {
-    _list->size++;
+    //_list->size++;
     // Голова листа изначально указывает на NULL, а после первого пуша начинает уже на новый элемент
     if (_list->head == NULL)
     {
