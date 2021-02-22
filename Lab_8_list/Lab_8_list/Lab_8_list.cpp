@@ -63,7 +63,7 @@ void list_output(List* list_spisok)  //function for printing the list
 
 int main()
 {
-    int input_data = 0;
+    //int input_data = 0;
     List* list_spisok = initList();
     for (int i = 0; i < 10; i++)
     {
