@@ -11,6 +11,7 @@ using namespace std;
 
 int main()
 {
+    char* _tmp;
     setlocale(LC_ALL, "Russian");
     char* sentence_1 = (char*)malloc(sizeof(char) * (strlen(SENTENCE_1) + 1));
     strcpy(sentence_1, SENTENCE_1);
@@ -37,15 +38,8 @@ int main()
     {
         cout << "строки не равны" << endl;
     }
-    // word_5 = strcat(word_5, word_6);
-    // word_4 = strcat(word_4, word_5);
-    // word_3 = strcat(word_3, word_4);
-    // word_2 = strcat(word_1, word_3);
-     //word_1 = strcat(word_1, word_2);
-     //cout << "2-e:" << word_1 << endl;
-     /*free(word_1);
-     free(word_2);
-     free(sentence_1);*/
+    _tmp = strstr(sentence_1, word_2);
+    cout << "-сумрак вечной тьмы- входит в -не уходи смиренно в сумрак вечной тьмы- с символа по номером:" << _tmp - sentence_1 + 1 << endl;
     free(word_1);
     free(word_2);
     free(sentence_1);
