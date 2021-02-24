@@ -19,6 +19,24 @@ int main()
     char* word_2 = (char*)malloc(sizeof(char) * (strlen(WORD_2) + 1));
     strcpy(word_2, WORD_2);
     cout << "1-e:" << strcat(word_1, word_2) << "\n" << endl;
+    if (strcmp(word_1, sentence_1) == 0)
+    {
+        cout << "строки равны" << endl;
+    }
+    else
+    {
+        cout << "строки не равны" << endl;
+    }
+    
+    strcpy(word_1, WORD_1);
+    if (strcmp(word_1, sentence_1) == 0)
+    {
+        cout << "строки равны" << endl;
+    }
+    else
+    {
+        cout << "строки не равны" << endl;
+    }
     // word_5 = strcat(word_5, word_6);
     // word_4 = strcat(word_4, word_5);
     // word_3 = strcat(word_3, word_4);
@@ -29,6 +47,8 @@ int main()
      free(word_2);
      free(sentence_1);*/
     free(word_1);
+    free(word_2);
+    free(sentence_1);
 }
 // Запуск программы: CTRL+F5 или меню "Отладка" > "Запуск без отладки"
 // Отладка программы: F5 или меню "Отладка" > "Запустить отладку"
