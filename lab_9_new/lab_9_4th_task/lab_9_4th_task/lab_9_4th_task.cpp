@@ -2,10 +2,40 @@
 //
 
 #include <iostream>
+using namespace std;
 
 int main()
 {
-    std::cout << "Hello World!\n";
+	setlocale(LC_ALL, "Russian");
+	system("chcp 1251");
+	int _amount_words;
+	char str_temp[256];
+	char string_arr[20][11];
+	cout << "input amount of words" << endl;
+	cin >> _amount_words;
+	cout << "input words (1 word in each string)" << endl;
+	if (_amount_words > 20)
+	{
+		return 0;
+	}
+	for (size_t i = 0; i < _amount_words; i++)
+	{
+		scanf("%s", str_temp);
+		if (strlen(str_temp) > 10)
+		{
+			return 0;
+		}
+		strcpy(string_arr[i], str_temp);
+	}
+	cout << "--------------" << endl;
+	for (size_t i = 0; i < _amount_words; i++)
+	{
+		if ((i % 2) > 0)
+		{
+			cout << string_arr[i] << endl;
+		}
+	}
+	return 0;
 }
 
 // Запуск программы: CTRL+F5 или меню "Отладка" > "Запуск без отладки"
