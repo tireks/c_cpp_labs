@@ -2,10 +2,14 @@
 //
 
 #include <iostream>
+using namespace std;
 
 int main()
 {
-    std::cout << "Hello World!\n";
+    char temp_cin_cout [20] ;
+    cin >> temp_cin_cout;
+    cout << temp_cin_cout << endl;
+
 }
 
 // Запуск программы: CTRL+F5 или меню "Отладка" > "Запуск без отладки"
