@@ -3,18 +3,20 @@
 
 #include <iostream>
 #include <stdio.h>
+#include <io.h>
 using namespace std;
 
 int main()
 {
     char temp_cin_cout [20] ;
-    /*gets_s(temp_cin_cout, 10);
+    gets_s(temp_cin_cout, 10);
     puts(temp_cin_cout);
     cin >> temp_cin_cout;
     cout << temp_cin_cout << endl;
     scanf("%s", temp_cin_cout);
-    printf("%s", temp_cin_cout);*/
+    printf("%s", temp_cin_cout);
     FILE* fp;
+    int fd;
     char name[] = "my.txt";
     if ((fp = fopen(name, "a+")) == NULL)
     {
@@ -24,7 +26,20 @@ int main()
     }
     fscanf(fp, "%s", temp_cin_cout);
     fprintf(fp, "%s", temp_cin_cout);
+    if (feof(fp) == 0)
+    {
+        cout << "smth gone wrong" << endl;
+    }
     fclose(fp);
+    /*if ((fd = open("TEST.TST", O_RDONLY)) == -1) {
+        printf("Cannot open file.\n");
+        exit(1);
+    }
+    if (_read(fd, buffer, 100) != 100)
+    {
+        printf("Possible read error.");
+    }*/
+    
     return 0;
 }
 
