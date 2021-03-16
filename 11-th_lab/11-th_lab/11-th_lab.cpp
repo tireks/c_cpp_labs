@@ -2,14 +2,30 @@
 //
 
 #include <iostream>
+#include <stdio.h>
 using namespace std;
 
 int main()
 {
     char temp_cin_cout [20] ;
+    /*gets_s(temp_cin_cout, 10);
+    puts(temp_cin_cout);
     cin >> temp_cin_cout;
     cout << temp_cin_cout << endl;
-
+    scanf("%s", temp_cin_cout);
+    printf("%s", temp_cin_cout);*/
+    FILE* fp;
+    char name[] = "my.txt";
+    if ((fp = fopen(name, "a+")) == NULL)
+    {
+        printf("Не удалось открыть файл");
+        getchar();
+        return 0;
+    }
+    fscanf(fp, "%s", temp_cin_cout);
+    fprintf(fp, "%s", temp_cin_cout);
+    fclose(fp);
+    return 0;
 }
 
 // Запуск программы: CTRL+F5 или меню "Отладка" > "Запуск без отладки"
