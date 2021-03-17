@@ -26,7 +26,7 @@ int main()
     }
     fscanf(fp, "%s", temp_cin_cout);
     fprintf(fp, "%s", temp_cin_cout);
-    if (feof(fp) == 0)
+    if (feof(fp) != 0)
     {
         cout << "smth gone wrong" << endl;
     }
