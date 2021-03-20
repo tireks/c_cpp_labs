@@ -2,13 +2,18 @@
 //
 
 #include <iostream>
-#include <stdio.h>
+#include <fcntl.h>      /* Needed only for _O_RDWR definition */
 #include <io.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <share.h>
 using namespace std;
 
 int main()
 {
-    char temp_cin_cout [20] ;
+    char temp_cin_cout [100] ;
+    char temp_read_write[100];
+    char temp_read_write2[100];
     gets_s(temp_cin_cout, 10);
     puts(temp_cin_cout);
     cin >> temp_cin_cout;
@@ -16,7 +21,8 @@ int main()
     scanf("%s", temp_cin_cout);
     printf("%s", temp_cin_cout);
     FILE* fp;
-    int fd;
+    int fh, bytesread, i_count, end_string;
+    bool flag_read;
     char name[] = "my.txt";
     if ((fp = fopen(name, "a+")) == NULL)
     {
@@ -24,21 +30,78 @@ int main()
         getchar();
         return 0;
     }
+    cout << "now working with files" << endl;
     fscanf(fp, "%s", temp_cin_cout);
+    cout << temp_cin_cout << endl;
     fprintf(fp, "%s", temp_cin_cout);
+    rewind(fp);
+    fscanf(fp, "%s", temp_cin_cout);
+    cout << temp_cin_cout << endl;
     if (feof(fp) != 0)
     {
         cout << "smth gone wrong" << endl;
     }
     fclose(fp);
-    /*if ((fd = open("TEST.TST", O_RDONLY)) == -1) {
-        printf("Cannot open file.\n");
+    if (_sopen_s(&fh, "crt_read.txt", _O_RDWR, _SH_DENYNO, 0))
+    {
+        perror("open failed on input file");
         exit(1);
     }
-    if (_read(fd, buffer, 100) != 100)
+    flag_read = true;
+    i_count = 0;
+    if ((bytesread = _read(fh, temp_read_write, 10)) <= 0)
     {
-        printf("Possible read error.");
-    }*/
+        perror("Problem reading file");
+    }
+    else
+    {
+        while (flag_read)
+        {
+            if (temp_read_write[i_count] < -1)
+            {
+                flag_read = false;
+                end_string = i_count;
+            }
+            i_count++;
+            temp_read_write2[i_count] = temp_read_write[i_count];
+            if (i_count >= 34)
+            {
+                flag_read = false;
+            }
+        }
+        if (end_string != 0)
+        {
+            temp_read_write[end_string] = 0;
+            temp_read_write2[end_string] = 0;
+        }
+        cout << "another_file" << endl;
+        cout << temp_read_write << endl;
+    }
+    if ((bytesread = _write(fh, temp_read_write, end_string)) == -1)
+    {
+        switch (errno)
+        {
+        case EBADF:
+            perror("Bad file descriptor!");
+            break;
+        case ENOSPC:
+            perror("No space left on device!");
+            break;
+        case EINVAL:
+            perror("Invalid parameter: buffer was NULL!");
+            break;
+        default:
+            // An unrelated error occurred
+            perror("Unexpected error!");
+        }
+    }
+    else
+    {
+        strcat(temp_read_write, temp_read_write);
+        cout << temp_read_write << endl;
+    }
+
+    _close(fh);
     
     return 0;
 }
