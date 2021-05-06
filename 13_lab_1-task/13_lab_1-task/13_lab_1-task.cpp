@@ -47,6 +47,7 @@ int main()
             cout << matrix_arr[i_count][j_count] << "  ";
         }
     }
+    fclose(file_input);
     free(matrix_arr);
 }
 
