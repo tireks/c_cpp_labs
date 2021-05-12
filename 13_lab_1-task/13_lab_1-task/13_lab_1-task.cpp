@@ -24,6 +24,7 @@ int main()
     }
     fscanf(file_input, "%d", &num_strings);
     fscanf(file_input, "%d", &num_columns);
+    num_columns++;
     matrix_arr = new int*[num_strings];
     for (i_count = 0; i_count < num_strings; i_count++)
     {
