@@ -43,6 +43,16 @@ void column_cutter(
     }
 }
 
+bool checker_matrix(float** matrix_arr_func, int string_size,
+                    int column_size)
+{
+    for (size_t i = 0; i < column_size; i++)
+    {
+        bool zero_string = true;
+        bool 
+    }
+}
+
 int main()
 {
     float** matrix_arr;
@@ -125,6 +135,7 @@ int main()
         //
         diap_stop++;
     }
+
     cout << endl;
     cout << endl;
     for (i_count = 0; i_count < num_strings; i_count++)
