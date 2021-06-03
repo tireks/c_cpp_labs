@@ -188,6 +188,32 @@ void left_cycl_shift(bool* mass, int mass_size ,int shift_step)
     }
 }
 
+void right_cycl_shift(bool* mass, int mass_size, int shift_step)
+{
+    bool temp_buf1;
+    bool temp_buf2;
+    if (shift_step == 1)
+    {
+        temp_buf1 = mass[mass_size - 1];
+        for (int i = 0; i < mass_size - 1; i++)
+        {
+            mass[i + 1] = mass[i];
+        }
+        mass[0] = temp_buf1;
+    }
+    if (shift_step == 2)
+    {
+        temp_buf1 = mass[mass_size - 2];
+        temp_buf2 = mass[mass_size - 1];
+        for (int i = 0; i < mass_size - 2; i++)
+        {
+            mass[i + 2] = mass[i];
+        }
+        mass[0] = temp_buf1;
+        mass[1] = temp_buf2;
+    }
+}
+
 void K_i_generator(bool* key_48, bool* key_56, 
                     bool* key_28_1, bool* key_28_2,
                     int level_num)
@@ -202,6 +228,38 @@ void K_i_generator(bool* key_48, bool* key_56,
     {
         left_cycl_shift(key_28_1, 28, 2);
         left_cycl_shift(key_28_2, 28, 2);
+    }
+    for (size_t i = 0; i < 28; i++)
+    {
+        key_56[i] = key_28_1[i];
+    }
+    for (size_t i = 0; i < 28; i++)
+    {
+        key_56[i + 28] = key_28_2[i];
+    }
+    for (size_t i = 0; i < 48; i++)
+    {
+        key_48[i] = key_56[tab_key_zip(i) - 1];
+    }
+}
+
+void reverse_K_i_generator(bool* key_48, bool* key_56,
+    bool* key_28_1, bool* key_28_2,
+    int level_num)
+{
+    if ((level_num == 1) ||
+        (level_num == 8) || (level_num == 15))
+    {
+        right_cycl_shift(key_28_1, 28, 1);
+        right_cycl_shift(key_28_2, 28, 1);
+    }
+    else
+    {
+        if (level_num != 0)
+        {
+            right_cycl_shift(key_28_1, 28, 2);
+            right_cycl_shift(key_28_2, 28, 2);
+        }
     }
     for (size_t i = 0; i < 28; i++)
     {
@@ -276,7 +334,7 @@ int Sblock_binary_determ(int first_bit, int last_bit)
     }
 }
 
-void eight_block_worker(bool* text48, bool* text32, 
+void eight_block_worker(bool* text48,
                         bool* text_32_temp, bool* text_32_temp_2)
 {
     int to_S_block_1 = 0;
@@ -346,13 +404,53 @@ void feistel_16_lvls(
             key56_text48[j] = text_2_32[tab_text_expansion(j) - 1];
         }
         XORer(key56_text48, key_48, 48);
-        eight_block_worker(key56_text48, text_2_32, text_temp_32, text_temp_32_2);
+        eight_block_worker(key56_text48, text_temp_32, text_temp_32_2);
         XORer(text_1_32, text_temp_32, 32);
-        if (i < 15)
+        if (i < 16)
         {
             for (size_t j = 0; j < 32; j++)
             {
-                text_temp_32[j] = text_1_32;
+                text_temp_32[j] = text_1_32[j];
+                text_1_32[j] = text_2_32[j];
+                text_2_32[j] = text_temp_32[j];
+            }
+        }
+    }
+    free(key56_text48);
+    free(key_48);
+}
+
+void reverse_feistel_16_lvls(
+    bool* text_1_32, bool* text_2_32, bool* text_temp_32,
+    bool* text_temp_32_2, bool* key_1_28, bool* key_2_28)
+{
+    bool* key_48;
+    key_48 = new bool[48];
+    for (size_t i = 0; i < 48; i++)
+    {
+        key_48[i] = 0;
+    }
+    bool* key56_text48;
+    key56_text48 = new bool[56];
+    for (size_t i = 0; i < 56; i++)
+    {
+        key56_text48[i] = 0;
+    }
+    for (size_t i = 0; i < 16; i++)
+    {
+        reverse_K_i_generator(key_48, key56_text48, key_1_28, key_2_28, i);
+        for (size_t j = 0; j < 48; j++)
+        {
+            key56_text48[j] = text_1_32[tab_text_expansion(j) - 1];
+        }
+        XORer(key56_text48, key_48, 48);
+        eight_block_worker(key56_text48, text_temp_32, text_temp_32_2);
+        XORer(text_2_32, text_temp_32, 32);
+        if (i < 16)
+        {
+            for (size_t j = 0; j < 32; j++)
+            {
+                text_temp_32[j] = text_1_32[j];
                 text_1_32[j] = text_2_32[j];
                 text_2_32[j] = text_temp_32[j];
             }
@@ -542,6 +640,55 @@ int main()
 
     feistel_16_lvls(text_32_1, text_32_2, text_32_temp, 
                     text_32_temp_2, key_28_1, key_28_2);
+
+    unite_to_block(text_64_1, text_32_1, text_32_2);
+
+    end_permutation(text_64_1, text_64_2);
+    for (size_t j = 0; j < 64; j++)
+    {
+        cout << text_64_2[j];
+    }
+    cout << endl;
+    //end of encryption
+    for (size_t i = 0; i < 8; i++)
+    {
+        cout << int(start_key_input[i]) << "++++++++ " << endl;
+        temp_buf = int(start_key_input[i]);
+        while_iteration = 0;
+        while (temp_buf > 0)
+        {
+            key_64_1[i * 8 + (7 - while_iteration)] = temp_buf % 2;
+            temp_buf = temp_buf / 2;
+            while_iteration++;
+        }
+        if (while_iteration == 6)
+        {
+            key_64_1[i * 8] = 0;
+        }
+        else
+        {
+            if (while_iteration == 5)
+            {
+                key_64_1[i * 8] = 0;
+                key_64_1[i * 8 + 1] = 0;
+            }
+        }
+        for (size_t j = 0; j < 64; j++)
+        {
+            cout << key_64_1[j];
+        }
+        cout << endl;
+    }
+    cout << endl;
+
+    start_permutation(text_64_2, text_64_1);
+
+    split_to_subblocks(text_64_1, text_32_1, text_32_2);
+
+    key_first_splitter(key_64_1, key_28_1, key_28_2);
+
+    reverse_feistel_16_lvls(text_32_1, text_32_2, text_32_temp,
+        text_32_temp_2, key_28_1, key_28_2);
 
     unite_to_block(text_64_1, text_32_1, text_32_2);
 
