@@ -433,6 +433,7 @@ void permission_changer(Node_Pmatr_outter* list, int user_id, int new_perm, int 
                         s->read_permition = true;
                         s->write_permition = true;
                         s->append_permition = false;
+                        break;
                     case 3:
                         s->read_permition = true;
                         s->write_permition = true;
@@ -461,6 +462,7 @@ int main()
     Node_file_id_comp* temp_curs1;
     Node_Pmatr_outter* temp_curs2;
     Node_auth* p_auth_k;
+    FILE* file_stream;
     cur_id_sess = 0;
     bool perm_granted;
     bool stop_cycl;
