@@ -37,6 +37,37 @@ void add_element_pairs_list(Node_list_pairs* list, int first_dig, int sec_dig)
     p->next = tmp;
 }
 
+bool new_add_element_p_l(Node_list_pairs* list, int first_dig, int sec_dig)
+{
+    Node_list_pairs* p1 = list;
+    while (p1 != NULL)
+    {
+        if (((p1->dig_1 == first_dig)&&(p1->dig_2 == sec_dig))
+            || ((p1->dig_1 == sec_dig)&&(p1->dig_2 == first_dig)))
+        {
+            return false;
+        }
+        else
+        {
+            p1 = p1->next;
+        }
+    }
+    Node_list_pairs* tmp = (Node_list_pairs*)malloc(sizeof(Node_list_pairs));
+    // Присваивание значения узлу
+    tmp->dig_1 = first_dig;
+    tmp->dig_2 = sec_dig;
+    // Присваивание указателю на следующий элемент значения NULL
+    tmp->next = NULL;
+    // Присваивание новому указателю указателя head. 
+    // Присваивание выполняется для того, чтобы не потерять указатель на «голову» списка
+    Node_list_pairs* p = list;
+    // Сдвиг указателя p в самый конец первоначального списка
+    while (p->next != NULL)
+        p = p->next;
+    // Присваивание указателю p -> next значения указателя tmp (созданный новый узел)
+    p->next = tmp;
+}
+
 Node_list_pairs* remove_pairs_list(Node_list_pairs* head)
 {
     while (head != NULL)
@@ -207,7 +238,12 @@ int main()
         if ((print_buffer[i_counter] != 45) && (print_buffer[i_counter] != 32) &&
             (print_buffer[i_counter] != 43) && (print_buffer[i_counter] != 10))
         {
-            adj_m_size++;
+            if ((print_buffer[i_counter + 1] == 45) || (print_buffer[i_counter + 1] == 32) ||
+                (print_buffer[i_counter + 1] == 43) || (print_buffer[i_counter + 1] == 10))
+            {
+                adj_m_size++;
+            }
+            
         }
         i_counter++;
     }
@@ -290,8 +326,73 @@ int main()
         }
         
     }
-    fprintf(file_out_2d, "\n");
     fclose(file_out_2d);
+    fclose(file_out_1t);
+    //////////////////// end of 2-d task
+    FILE* file_out_3d;
+    Node_list_pairs* pairs_list_new = NULL;
+    if ((file_out_2d = fopen("2_out.txt", "a+")) == NULL)
+    {
+        printf("Не удалось открыть файл");
+        getchar();
+        return 0;
+    }
+    if ((file_out_3d = fopen("3_out.txt", "w")) == NULL)
+    {
+        printf("Не удалось открыть файл");
+        getchar();
+        return 0;
+    }    
+    cursor_adj = 0; //here and now name of variable doesn't mean anything, didn't want to make new one
+    cursor_counter = 0;
+    while (!feof(file_out_2d))
+    {
+        estr = fgets(print_buffer, 99, file_out_2d);
+        i_counter = 0;
+        cursor_counter = 0;
+        cursor_adj = 0;
+        if (estr != NULL)
+        {
+            while (print_buffer[i_counter] != 32)
+            {
+                cursor_adj = cursor_adj * 10 + (print_buffer[i_counter] - '0');
+                i_counter++;
+            }
+            i_counter = i_counter + 3;
+            while (print_buffer[i_counter] != 10)
+            {
+                while ((print_buffer[i_counter] != 44) && (print_buffer[i_counter] != 10))
+                {
+                    cursor_counter = cursor_counter * 10 + (print_buffer[i_counter] - '0');
+                    i_counter++;
+                }
+                i_counter = i_counter + 2;
+                if (pairs_list_new == NULL)
+                {
+                    pairs_list_new = create_pairs_list(cursor_adj, cursor_counter);
+                }
+                else
+                {
+                    new_add_element_p_l(pairs_list_new, cursor_adj, cursor_counter);
+                }
+                cursor_counter = 0;
+            }
+        }
+    }
+    Node_list_pairs* p_curs = pairs_list_new;
+    fprintf(file_out_3d, "\n");
+    while (p_curs != NULL)
+    {
+        fprintf(file_out_3d, "%d", p_curs->dig_1);
+        fprintf(file_out_3d, " , ");
+        fprintf(file_out_3d, "%d", p_curs->dig_2);
+        fprintf(file_out_3d, "\n");
+        p_curs = p_curs->next;
+    }
+    remove_pairs_list(pairs_list_new);
+
+    fclose(file_out_2d);
+    fclose(file_out_3d);
     free(adj_matrix);
     free(filename_);
     free(print_buffer);
