@@ -29,7 +29,7 @@ typedef struct Node_4 {
     char filename[16];
     struct Node_4* next;
 } Node_file_id_comp;
-
+sss
 Node_auth* create_auth(int id_input, char* login_, char* pass)
 {
     Node_auth* tmp = (Node_auth*)malloc(sizeof(Node_auth));
