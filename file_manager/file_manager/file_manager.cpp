@@ -1,6 +1,9 @@
 ﻿
 
 #include <iostream>
+#include <cstring>
+#include <fstream>
+
 using namespace std;
 
 typedef struct Node_1 {
@@ -83,6 +86,22 @@ Node_Pmatr_outter* create_Pmatr_outter(Node_Pmatr_inner* start_cont, int file_id
     temp->next = p; // созданный узел указывает на следующий элемент
     return(temp);
 }*/
+
+int inUse(char *s,int len)
+{
+
+    int count=0;
+
+    for(int i=0; i<len; i++)
+    {
+        if(s[i] != 0)
+        {
+            count ++;
+        }
+    }
+
+    return count;
+}
 
 void add_element_auth(Node_auth* list, int id_input, char* login_, char* pass)
 {
@@ -479,12 +498,12 @@ int main()
     int cur_id_sess;
     int iter__;
     int i_c;
+    FILE* file_stream;
     Node_file_id_comp* p_file;
     Node_file_id_comp* temp_curs;
     Node_file_id_comp* temp_curs1;
     Node_Pmatr_outter* temp_curs2;
     Node_auth* p_auth_k;
-    FILE* file_stream;
     cur_id_sess = 0;
     bool perm_granted;
     bool stop_cycl;
@@ -520,6 +539,8 @@ int main()
     filename[4] = (char)('1');
     filename[5] = 0;
     Node_file_id_comp* file_comp_tab = create_comp_tab_file(1, filename);
+    file_stream = fopen(filename,"a");
+    fclose(file_stream);
     Node_Pmatr_outter* permition_matr = create_Pmatr_outter(create_Pmatr_inner(1, 1, 1, 1, 1), 1);
     while (!kill_session_flag)
     {
@@ -646,8 +667,18 @@ int main()
                         perm_granted = check_perm_file(iter__, &cur_id_sess, 1, permition_matr);
                         if (perm_granted)
                         {
-                            cout << "Success!" << endl;
-                            //////////// -- место для работы с файлом
+                            cout << "Success! File content : " << endl;
+                            char c;
+                            file_stream = fopen(filename, "r");
+                            c = fgetc(file_stream);
+                            while (c != EOF)
+                            {
+                                printf ("%c", c);
+                                c = fgetc(file_stream);
+                            }
+                            cout << endl;
+                            fclose(file_stream);
+
                         }
                         else
                         {
@@ -683,7 +714,15 @@ int main()
                         perm_granted = check_perm_file(iter__, &cur_id_sess, 2, permition_matr);
                         if (perm_granted)
                         {
-                            cout << "Success!" << endl;
+                            cout << "Success! Input file text:" << endl;
+
+                            char * str = (char*)malloc(sizeof(char) * 1024);
+                            memset(str,0,1024);
+                            cin >> str;
+                            file_stream = fopen(filename, "w");
+                            fwrite(str, sizeof(char), inUse(str,1024),file_stream);
+                            fclose(file_stream);
+                            free(str);
                             //////////// -- место для работы с файлом
                         }
                         else
@@ -720,7 +759,14 @@ int main()
                         perm_granted = check_perm_file(iter__, &cur_id_sess, 3, permition_matr);
                         if (perm_granted)
                         {
-                            cout << "Success!" << endl;
+                            cout << "Success! Text to append:" << endl;
+                            char * str = (char*)malloc(sizeof(char) * 1024);
+                            memset(str,0,1024);
+                            cin >> str;
+                            file_stream = fopen(filename, "a");
+                            fwrite(str, sizeof(char),inUse(str,1024),file_stream);
+                            fclose(file_stream);
+                            free(str);
                             ///////// -- место для какихто действий
                         }
                         else
@@ -745,6 +791,10 @@ int main()
                 add_element_file_tab(file_comp_tab, i_c, filename);
                 //написать компэрер названия файла и id по табл, будет возвращать id, нужно будет для универсального добавления прав в матрицу, затем само добавление и вывод матрицы
                 i_c = add_file_per_matr(permition_matr, &cur_id_sess, compare_filename_id(filename, file_comp_tab));
+
+                file_stream = fopen(filename,"a");
+                fclose(file_stream);
+
                 switch (i_c)
                 {
                 case -1:
