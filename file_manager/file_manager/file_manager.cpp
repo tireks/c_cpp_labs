@@ -15,6 +15,7 @@ typedef struct Node_2 {
     bool read_permition;
     bool write_permition;
     bool append_permition;
+    bool admin_permission;
     struct Node_2* next;
 } Node_Pmatr_inner;
 
@@ -49,13 +50,14 @@ Node_file_id_comp* create_comp_tab_file(int file_id_, char* filename_)
     return(tmp);
 }
 
-Node_Pmatr_inner* create_Pmatr_inner(int user_id_, bool r_p, bool w_p, bool a_p)
+Node_Pmatr_inner* create_Pmatr_inner(int user_id_, bool r_p, bool w_p, bool ap_p, bool ad_p)
 {
     Node_Pmatr_inner* tmp = (Node_Pmatr_inner*)malloc(sizeof(Node_Pmatr_inner));
     tmp->user_id = user_id_;
     tmp->read_permition = r_p;
     tmp->write_permition = w_p;
-    tmp->append_permition = a_p;
+    tmp->append_permition = ap_p;
+    tmp->admin_permission = ad_p;
     tmp->next = NULL;
     return(tmp);
 }
@@ -114,13 +116,14 @@ void add_element_file_tab(Node_file_id_comp* list, int file_id_, char* filename_
     p->next = tmp;
 }
 
-void add_element_Pmatr_inner(Node_Pmatr_inner* list, int user_id_, bool r_p, bool w_p, bool a_p)
+void add_element_Pmatr_inner(Node_Pmatr_inner* list, int user_id_, bool r_p, bool w_p, bool ap_p, bool ad_p)
 {
     Node_Pmatr_inner* tmp = (Node_Pmatr_inner*)malloc(sizeof(Node_Pmatr_inner));
     tmp->user_id = user_id_;
     tmp->read_permition = r_p;
     tmp->write_permition = w_p;
-    tmp->append_permition = a_p;
+    tmp->append_permition = ap_p;
+    tmp->admin_permission = ad_p;
     tmp->next = NULL;
     Node_Pmatr_inner* p = list;
     while (p->next != NULL)
@@ -252,7 +255,7 @@ void create_new_user(char* login_, char* pass_, Node_auth* list,
     out_curs = per_matr;
     //int temp_counter = 0;
     do {
-        add_element_Pmatr_inner(out_curs->containment, temp_counter + 1, 1, 0, 0);
+        add_element_Pmatr_inner(out_curs->containment, temp_counter + 1, 1, 0, 0, 0);
         out_curs = out_curs->next; // переход к следующему узлу
     } while (out_curs != NULL);
     *id_sess = temp_counter + 1;
@@ -302,7 +305,7 @@ int add_file_per_matr(Node_Pmatr_outter* per_matr, int* id_sess, int file_id)
     {
         return -1;
     }
-    add_element_Pmatr_outter(per_matr, create_Pmatr_inner(1,1,1,1), file_id);
+    add_element_Pmatr_outter(per_matr, create_Pmatr_inner(1,1,1,1,1), file_id);
     Node_Pmatr_outter* p;
     Node_Pmatr_outter* z;
     p = per_matr;
@@ -327,11 +330,11 @@ int add_file_per_matr(Node_Pmatr_outter* per_matr, int* id_sess, int file_id)
         {
             if (t->user_id == *id_sess)
             {
-                add_element_Pmatr_inner(s, t->user_id, 1, 1, 1);
+                add_element_Pmatr_inner(s, t->user_id, 1, 1, 1, 1);
             }
             else
             {
-                add_element_Pmatr_inner(s, t->user_id, 1, 0, 0);
+                add_element_Pmatr_inner(s, t->user_id, 1, 0, 0, 0);
             }
             t = t->next;
         }
@@ -392,6 +395,16 @@ bool check_perm_file(int file_id, int* user_id, int perm_lvl, Node_Pmatr_outter*
                             return false;
                         }
                         break;
+                    case 4:
+                        if (s->admin_permission)
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                        break;
                     }
                 }
             } while (s != NULL);
@@ -428,16 +441,25 @@ void permission_changer(Node_Pmatr_outter* list, int user_id, int new_perm, int 
                         s->read_permition = true;
                         s->write_permition = false;
                         s->append_permition = false;
+                        s->admin_permission = false;
                         break;
                     case 2:
                         s->read_permition = true;
                         s->write_permition = true;
-                        s->append_permition = false;
+                        s->append_permition = true;
+                        s->admin_permission = false;
                         break;
                     case 3:
                         s->read_permition = true;
+                        s->write_permition = false;
+                        s->append_permition = true;
+                        s->admin_permission = false;
+                        break;
+                    case 4:
+                        s->read_permition = true;
                         s->write_permition = true;
                         s->append_permition = true;
+                        s->admin_permission = true;
                         break;
                     }
                     s = NULL;
@@ -498,7 +520,7 @@ int main()
     filename[4] = (char)('1');
     filename[5] = 0;
     Node_file_id_comp* file_comp_tab = create_comp_tab_file(1, filename);
-    Node_Pmatr_outter* permition_matr = create_Pmatr_outter(create_Pmatr_inner(1, 1, 1, 1), 1);
+    Node_Pmatr_outter* permition_matr = create_Pmatr_outter(create_Pmatr_inner(1, 1, 1, 1, 1), 1);
     while (!kill_session_flag)
     {
         while (!sess_authorised)
@@ -592,10 +614,11 @@ int main()
                 cout << "list of commands:" << endl;
                 cout << "1-open one of files for reading" << endl;
                 cout << "2-open one of files for reading and writing" << endl;
-                cout << "3-check append permission for one of files" << endl;
+                cout << "3-open one of files for reading and appending" << endl;
                 cout << "4-create file with standart permissions" << endl;
                 cout << "5-create file with settable permissions" << endl;
-                cout << "6-chahge permission for my appendable files" << endl;
+                cout << "6-chahge permission for my administrable files" << endl;
+                cout << "7-check for admin permissions for one of files" << endl;
                 cout << "9-logout " << endl;
                 break;
             case 1:
@@ -697,12 +720,12 @@ int main()
                         perm_granted = check_perm_file(iter__, &cur_id_sess, 3, permition_matr);
                         if (perm_granted)
                         {
-                            cout << "Success! You have admin permissions for that file" << endl;
+                            cout << "Success!" << endl;
                             ///////// -- место для какихто действий
                         }
                         else
                         {
-                            cout << "Sorry, you dont have permissions" << endl;
+                            cout << "Sorry, you have another access lvl, maybe you have write permissions?" << endl;
                         }
                         temp_curs1 = NULL;
                     }
@@ -777,7 +800,8 @@ int main()
                         cout << "which permission want to grant?" << endl;
                         cout << "1 - read" << endl;
                         cout << "2 - read and write" << endl;
-                        cout << "3 - append permission" << endl;
+                        cout << "3 - read and append" << endl;
+                        cout << "4 - full control" << endl;
                         cin >> iter1__;
                         permission_changer(permition_matr, iter__, iter1__, compare_filename_id(filename, file_comp_tab));
                         cout << "permission of this user successfully changed" << endl;
@@ -828,7 +852,8 @@ int main()
                             cout << "which permission want to grant?" << endl;
                             cout << "1 - read" << endl;
                             cout << "2 - read and write" << endl;
-                            cout << "3 - append permission" << endl;
+                            cout << "3 - read and append" << endl;
+                            cout << "4 - full control" << endl;
                             cin >> iter2__;
                             permission_changer(permition_matr, iter1__, iter2__, iter__);
                             cout << "permission of this user for chosen file successfully changed" << endl;
@@ -836,7 +861,7 @@ int main()
                         }
                         else
                         {
-                            cout << "sorry, but you cant" << endl;
+                            cout << "sorry, but you can't" << endl;
                         }
                     }
                     else
@@ -844,6 +869,43 @@ int main()
                         cout << "sorry, you dont have enough permissions" << endl;
                     }
                 }
+                break;
+            case 7:
+                cout << "which file?" << endl;
+                iter__ = 0;
+                p_file = file_comp_tab;
+                do {
+                    iter__++;
+                    cout << iter__ << " - " << p_file->filename << ".txt" << endl;
+                    p_file = p_file->next;
+                } while (p_file != NULL);
+                cin >> iter__;
+                temp_curs1 = file_comp_tab;
+                temp_curs2 = permition_matr;
+                do
+                {
+                    if (iter__ != temp_curs1->file_id)
+                    {
+                        temp_curs2 = temp_curs2->next;
+                        temp_curs1 = temp_curs1->next;
+                    }
+                    else
+                    {
+                        memcpy(filename, temp_curs1->filename, 16);
+                        perm_granted = check_perm_file(iter__, &cur_id_sess, 4, permition_matr);
+                        if (perm_granted)
+                        {
+                            cout << "Success! You have admin permissions for that file" << endl;
+                            ///////// -- место для какихто действий
+                        }
+                        else
+                        {
+                            cout << "Sorry, you dont have permissions" << endl;
+                        }
+                        temp_curs1 = NULL;
+                    }
+
+                } while ((temp_curs1 != NULL) && (temp_curs2 != NULL));
                 break;
             case 9:
                 sess_authorised = false;
