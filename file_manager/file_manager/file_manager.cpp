@@ -1,4 +1,4 @@
-﻿
+﻿/////todo: solve problem with estr and printer_buffer.
 
 #include <iostream>
 using namespace std;
@@ -470,6 +470,120 @@ void permission_changer(Node_Pmatr_outter* list, int user_id, int new_perm, int 
     } while (p != NULL);
 }
 
+int read_printer(FILE* file_stream, char* filename)
+{
+    char* estr = new char[100];
+    char* print_buffer = new char[100];
+    if ((file_stream = fopen(filename, "r+")) == NULL)
+    {
+        printf("failed to open file");
+        getchar();
+        return 0;
+    }
+    cout << "```````````````````````````````````" << endl;
+    while (!feof(file_stream))
+    {
+        estr = fgets(print_buffer, 99, file_stream);
+        if (estr != NULL)
+        {
+            cout << print_buffer;
+        }
+    }
+    cout << endl;
+    cout << "```````````````````````````````````" << endl;
+    fclose(file_stream);
+    delete estr;
+    delete print_buffer;
+    return 0;
+}
+
+int append_printer(FILE* file_stream, char* filename)
+{
+    char* estr = new char[100];
+    char* print_buffer = new char[100];
+    char* write_buffer = new char[100];
+    char* big_write_buffer = new char[1024];
+    big_write_buffer[0] = 0;
+    int writing_flag = 1;
+    int flag_strAppend = 0;
+    int writing_iter = -1;
+    int size_big_buffer = 0;
+    if ((file_stream = fopen(filename, "r+")) == NULL)
+    {
+        printf("failed to open file");
+        getchar();
+        return 0;
+    }
+    cout << "```````````````````````````````````" << endl;//endl
+    while (!feof(file_stream))
+    {
+        fgets(print_buffer, 99, file_stream);
+        if (print_buffer != NULL)
+        {
+            cout << print_buffer;
+        }
+    }
+    cout << endl;
+    while (writing_flag == 1)
+    {
+        writing_iter++;
+        if (estr == NULL)
+        {
+            cin >> write_buffer;
+            if ((write_buffer[0] == 60) && (write_buffer[1] == 45))
+            {
+                cout << "sorry, that feature isn't supported in that situation" << endl;
+            }
+            flag_strAppend = -1;
+        }
+        else
+        {
+            cin >> write_buffer;
+            if ((write_buffer[0] == 60) && (write_buffer[1] == 45) && (writing_iter == 0))
+            {
+                flag_strAppend = 1;
+            }
+        }
+        if (flag_strAppend == 0)
+        {
+            strcat(big_write_buffer, "\n");
+            flag_strAppend = -1;
+        }
+        if (write_buffer[0] == 58)
+        {
+            if ((write_buffer[1] == 119) && (write_buffer[2] == 113))
+            {
+                while (big_write_buffer[size_big_buffer] != 0)
+                {
+                    size_big_buffer++;
+                }
+                big_write_buffer[size_big_buffer - 1] = 0;
+                fputs(big_write_buffer, file_stream);
+                fprintf(file_stream, "%c", 0);
+                //fprintf(file_stream, "%c", 0);
+                writing_flag = 0;
+            }
+            if ((write_buffer[1] == 113) && (write_buffer[2] == 33))
+            {
+                writing_flag = 0;
+            }
+        }
+        if ((write_buffer[0] != 60) && (write_buffer[1] != 45))
+        {
+            strcat(big_write_buffer, write_buffer);
+            strcat(big_write_buffer, "\n");
+
+        }
+        
+    }
+    fclose(file_stream);
+    delete estr;
+    delete print_buffer;
+    delete write_buffer;
+    delete big_write_buffer;
+    return 0;
+}
+
 int main()
 {
     
@@ -520,6 +634,13 @@ int main()
     filename[4] = (char)('1');
     filename[5] = 0;
     Node_file_id_comp* file_comp_tab = create_comp_tab_file(1, filename);
+    if ((file_stream = fopen(filename, "w")) == NULL)
+    {
+        printf("failed to create starter file1");
+        getchar();
+        return 0;
+    }
+    fclose(file_stream);
     Node_Pmatr_outter* permition_matr = create_Pmatr_outter(create_Pmatr_inner(1, 1, 1, 1, 1), 1);
     while (!kill_session_flag)
     {
@@ -647,6 +768,7 @@ int main()
                         if (perm_granted)
                         {
                             cout << "Success!" << endl;
+                            read_printer(file_stream, filename);
                             //////////// -- место для работы с файлом
                         }
                         else
@@ -684,7 +806,7 @@ int main()
                         if (perm_granted)
                         {
                             cout << "Success!" << endl;
-                            //////////// -- место для работы с файлом
+                            append_printer(file_stream, filename);
                         }
                         else
                         {
@@ -743,6 +865,13 @@ int main()
                     temp_curs = temp_curs->next; // переход к следующему узлу
                 } while (temp_curs != NULL);
                 add_element_file_tab(file_comp_tab, i_c, filename);
+                if ((file_stream = fopen(filename, "w")) == NULL)
+                {
+                    printf("failed to create file");
+                    getchar();
+                    return 0;
+                }
+                fclose(file_stream);
                 //написать компэрер названия файла и id по табл, будет возвращать id, нужно будет для универсального добавления прав в матрицу, затем само добавление и вывод матрицы
                 i_c = add_file_per_matr(permition_matr, &cur_id_sess, compare_filename_id(filename, file_comp_tab));
                 switch (i_c)
@@ -770,6 +899,13 @@ int main()
                     temp_curs = temp_curs->next; // переход к следующему узлу
                 } while (temp_curs != NULL);
                 add_element_file_tab(file_comp_tab, i_c, filename);
+                if ((file_stream = fopen(filename, "w")) == NULL)
+                {
+                    printf("failed to create file");
+                    getchar();
+                    return 0;
+                }
+                fclose(file_stream);
                 i_c = add_file_per_matr(permition_matr, &cur_id_sess, compare_filename_id(filename, file_comp_tab));
                 switch (i_c)
                 {
